@@ -160,6 +160,18 @@ pdf-image-editor/
 - **No Data Collection** - We don't track or store any user data
 - **Offline Capable** - Works without an internet connection (after first load)
 
+### Security Notes
+
+This application loads external libraries from CDNs:
+- PDF.js from cdnjs.cloudflare.com
+- pdf-lib from unpkg.com
+- Fabric.js from cdnjs.cloudflare.com
+
+These scripts are loaded with `crossorigin="anonymous"` and `referrerpolicy="no-referrer"` attributes for enhanced security. For maximum security in production:
+1. Consider downloading and self-hosting these libraries
+2. Add Subresource Integrity (SRI) hashes to verify script integrity
+3. Implement Content Security Policy (CSP) headers
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
