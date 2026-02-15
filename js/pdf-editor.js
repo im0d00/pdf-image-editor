@@ -259,9 +259,9 @@ document.getElementById('pdfTextAdd').addEventListener('click', async () => {
 // Add text to PDF
 async function addTextToPDF(text, size, color, pageIndex) {
     const hexColor = PDFLib.rgb(
-        parseInt(color.substr(1, 2), 16) / 255,
-        parseInt(color.substr(3, 2), 16) / 255,
-        parseInt(color.substr(5, 2), 16) / 255
+        parseInt(color.substring(1, 3), 16) / 255,
+        parseInt(color.substring(3, 5), 16) / 255,
+        parseInt(color.substring(5, 7), 16) / 255
     );
     
     const page = pdfState.currentPDF.getPage(pageIndex);
