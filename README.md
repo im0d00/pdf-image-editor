@@ -1,3 +1,3 @@
 # PDF & Image Editor
 
-A web application for editing PDFs and images.
+A web-based PDF and image editing application.
