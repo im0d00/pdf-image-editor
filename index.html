@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A complete web application for editing PDFs and images">
+    <meta name="theme-color" content="#6366f1">
+    <title>PDF & Image Editor</title>
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%236366f1' width='100' height='100' rx='20'/%3E%3Cpath fill='white' d='M30 20h28l12 12v38c0 3-2 5-5 5H30c-3 0-5-2-5-5V25c0-3 2-5 5-5z'/%3E%3Cpath fill='%236366f1' d='M58 20v12h12z'/%3E%3C/svg%3E">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                PDF & Image Editor
+            </h1>
+            <div class="header-actions">
+                <button id="themeToggle" class="btn-icon" title="Toggle Theme">
+                    <svg class="theme-icon sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg class="theme-icon moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs">
+        <div class="container">
+            <button class="tab-btn active" data-tab="pdf-editor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                PDF Editor
+            </button>
+            <button class="tab-btn" data-tab="image-editor">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                Image Editor
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- PDF Editor Section -->
+        <section id="pdf-editor" class="editor-section active">
+            <div class="container">
+                <!-- Upload Area -->
+                <div id="pdfUploadArea" class="upload-area">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <polyline points="9 15 12 12 15 15"/>
+                    </svg>
+                    <h3>Drop PDF files here or click to upload</h3>
+                    <p>Supports single or multiple PDFs for merging</p>
+                    <input type="file" id="pdfFileInput" accept=".pdf" multiple hidden>
+                    <button class="btn btn-primary" onclick="document.getElementById('pdfFileInput').click()">Choose Files</button>
+                </div>
+
+                <!-- PDF Toolbar -->
+                <div id="pdfToolbar" class="toolbar" style="display: none;">
+                    <div class="toolbar-group">
+                        <button id="pdfAddText" class="btn-icon" title="Add Text (Ctrl+T)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="4 7 4 4 20 4 20 7"/>
+                                <line x1="9" y1="20" x2="15" y2="20"/>
+                                <line x1="12" y1="4" x2="12" y2="20"/>
+                            </svg>
+                        </button>
+                        <button id="pdfRotate" class="btn-icon" title="Rotate Page">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                        </button>
+                        <button id="pdfDelete" class="btn-icon" title="Delete Page">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="pdfMerge" class="btn btn-secondary" title="Merge PDFs">Merge PDFs</button>
+                        <button id="pdfSplit" class="btn btn-secondary" title="Split PDF">Split PDF</button>
+                        <button id="pdfDownload" class="btn btn-primary" title="Download PDF (Ctrl+S)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download
+                        </button>
+                        <button id="pdfNew" class="btn btn-secondary" title="New PDF">New</button>
+                    </div>
+                </div>
+
+                <!-- PDF Canvas Container -->
+                <div id="pdfCanvasContainer" class="canvas-container" style="display: none;">
+                    <div id="pdfPages" class="pdf-pages"></div>
+                </div>
+
+                <!-- PDF Text Annotation Modal -->
+                <div id="pdfTextModal" class="modal">
+                    <div class="modal-content">
+                        <h3>Add Text Annotation</h3>
+                        <input type="text" id="pdfTextInput" placeholder="Enter text..." class="input">
+                        <div class="form-row">
+                            <label>
+                                Font Size:
+                                <input type="number" id="pdfTextSize" value="20" min="8" max="72" class="input">
+                            </label>
+                            <label>
+                                Color:
+                                <input type="color" id="pdfTextColor" value="#000000" class="input">
+                            </label>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="pdfTextCancel" class="btn btn-secondary">Cancel</button>
+                            <button id="pdfTextAdd" class="btn btn-primary">Add Text</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Editor Section -->
+        <section id="image-editor" class="editor-section">
+            <div class="container">
+                <!-- Upload Area -->
+                <div id="imageUploadArea" class="upload-area">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <h3>Drop an image here or click to upload</h3>
+                    <p>Supports PNG, JPG, WEBP, BMP, GIF</p>
+                    <input type="file" id="imageFileInput" accept="image/*" hidden>
+                    <button class="btn btn-primary" onclick="document.getElementById('imageFileInput').click()">Choose Image</button>
+                </div>
+
+                <!-- Image Toolbar -->
+                <div id="imageToolbar" class="toolbar" style="display: none;">
+                    <div class="toolbar-group">
+                        <button id="imgUndo" class="btn-icon" title="Undo (Ctrl+Z)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 7v6h6"/>
+                                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                            </svg>
+                        </button>
+                        <button id="imgRedo" class="btn-icon" title="Redo (Ctrl+Y)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 7v6h-6"/>
+                                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="imgCrop" class="btn-icon" title="Crop">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/>
+                                <path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/>
+                            </svg>
+                        </button>
+                        <button id="imgRotate" class="btn-icon" title="Rotate 90°">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                        </button>
+                        <button id="imgFlipH" class="btn-icon" title="Flip Horizontal">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="2" x2="12" y2="22"/>
+                                <path d="M17 5h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/>
+                                <path d="M7 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/>
+                            </svg>
+                        </button>
+                        <button id="imgFlipV" class="btn-icon" title="Flip Vertical">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                <path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/>
+                                <path d="M5 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="imgDraw" class="btn-icon" title="Draw">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19l7 2-7-6v4z"/>
+                                <path d="M3 21l2-2 13-13 3 3-13 13-2 2z"/>
+                            </svg>
+                        </button>
+                        <button id="imgText" class="btn-icon" title="Add Text">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="4 7 4 4 20 4 20 7"/>
+                                <line x1="9" y1="20" x2="15" y2="20"/>
+                                <line x1="12" y1="4" x2="12" y2="20"/>
+                            </svg>
+                        </button>
+                        <button id="imgShapes" class="btn-icon" title="Add Shapes">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button id="imgFilters" class="btn btn-secondary" title="Filters">Filters</button>
+                        <button id="imgResize" class="btn btn-secondary" title="Resize">Resize</button>
+                        <button id="imgDownload" class="btn btn-primary" title="Download (Ctrl+S)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download
+                        </button>
+                        <button id="imgNew" class="btn btn-secondary" title="New Image">New</button>
+                    </div>
+                </div>
+
+                <!-- Image Canvas Container -->
+                <div id="imageCanvasContainer" class="canvas-container" style="display: none;">
+                    <canvas id="imageCanvas"></canvas>
+                </div>
+
+                <!-- Image Filters Modal -->
+                <div id="imageFiltersModal" class="modal">
+                    <div class="modal-content">
+                        <h3>Image Filters & Adjustments</h3>
+                        <div class="filter-group">
+                            <label>Brightness: <span id="brightnessValue">0</span></label>
+                            <input type="range" id="brightness" min="-1" max="1" step="0.1" value="0" class="slider">
+                        </div>
+                        <div class="filter-group">
+                            <label>Contrast: <span id="contrastValue">0</span></label>
+                            <input type="range" id="contrast" min="-1" max="1" step="0.1" value="0" class="slider">
+                        </div>
+                        <div class="filter-group">
+                            <label>Saturation: <span id="saturationValue">0</span></label>
+                            <input type="range" id="saturation" min="-1" max="1" step="0.1" value="0" class="slider">
+                        </div>
+                        <div class="filter-group">
+                            <label>Blur: <span id="blurValue">0</span></label>
+                            <input type="range" id="blur" min="0" max="1" step="0.1" value="0" class="slider">
+                        </div>
+                        <div class="filter-buttons">
+                            <button id="grayscale" class="btn btn-secondary">Grayscale</button>
+                            <button id="sepia" class="btn btn-secondary">Sepia</button>
+                            <button id="invert" class="btn btn-secondary">Invert</button>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="filterReset" class="btn btn-secondary">Reset</button>
+                            <button id="filterApply" class="btn btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Resize Modal -->
+                <div id="imageResizeModal" class="modal">
+                    <div class="modal-content">
+                        <h3>Resize Image</h3>
+                        <div class="form-row">
+                            <label>
+                                Width:
+                                <input type="number" id="resizeWidth" class="input" placeholder="Width">
+                            </label>
+                            <label>
+                                Height:
+                                <input type="number" id="resizeHeight" class="input" placeholder="Height">
+                            </label>
+                        </div>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="maintainAspect" checked>
+                            Maintain aspect ratio
+                        </label>
+                        <div class="modal-actions">
+                            <button id="resizeCancel" class="btn btn-secondary">Cancel</button>
+                            <button id="resizeApply" class="btn btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drawing Options Panel -->
+                <div id="drawingOptions" class="options-panel" style="display: none;">
+                    <label>
+                        Brush Size:
+                        <input type="range" id="brushSize" min="1" max="50" value="5" class="slider">
+                        <span id="brushSizeValue">5</span>
+                    </label>
+                    <label>
+                        Color:
+                        <input type="color" id="brushColor" value="#000000" class="input">
+                    </label>
+                </div>
+
+                <!-- Shapes Options Panel -->
+                <div id="shapesOptions" class="options-panel" style="display: none;">
+                    <button id="addRect" class="btn btn-secondary">Rectangle</button>
+                    <button id="addCircle" class="btn btn-secondary">Circle</button>
+                    <button id="addLine" class="btn btn-secondary">Line</button>
+                    <button id="addArrow" class="btn btn-secondary">Arrow</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content welcome-modal-content">
+            <h2>👋 Welcome to PDF & Image Editor!</h2>
+            <p class="welcome-subtitle">Edit PDFs and images right in your browser - no installation needed!</p>
+            
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <div class="welcome-icon">📄</div>
+                    <h3>PDF Editor</h3>
+                    <p>Merge, split, rotate, annotate, and reorder PDF pages</p>
+                </div>
+                <div class="welcome-feature">
+                    <div class="welcome-icon">🖼️</div>
+                    <h3>Image Editor</h3>
+                    <p>Crop, resize, filters, drawing, text, and shapes</p>
+                </div>
+                <div class="welcome-feature">
+                    <div class="welcome-icon">🔒</div>
+                    <h3>Private & Secure</h3>
+                    <p>Everything runs in your browser - files never leave your device</p>
+                </div>
+            </div>
+
+            <div class="welcome-quick-start">
+                <h3>⚡ Quick Start:</h3>
+                <ol>
+                    <li>Choose <strong>PDF Editor</strong> or <strong>Image Editor</strong> tab above</li>
+                    <li><strong>Drag & drop</strong> a file or click to upload</li>
+                    <li>Use the <strong>toolbar</strong> to edit your file</li>
+                    <li>Click <strong>Download</strong> when done</li>
+                </ol>
+            </div>
+
+            <div class="welcome-tips">
+                <p><strong>💡 Tip:</strong> Use <code>Ctrl+S</code> to save, <code>Ctrl+Z</code> to undo, and toggle dark mode with the moon icon!</p>
+                <p><strong>📖 Need help?</strong> Check out our <a href="USAGE.md" target="_blank">detailed usage guide</a>.</p>
+            </div>
+
+            <div class="modal-actions">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="dontShowWelcome">
+                    Don't show this again
+                </label>
+                <button id="welcomeClose" class="btn btn-primary">Get Started!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Button -->
+    <button id="helpButton" class="help-button" title="Show Help">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/pdf-editor.js"></script>
+    <script src="js/image-editor.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
