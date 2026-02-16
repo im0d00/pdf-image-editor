@@ -197,4 +197,33 @@ if ('performance' in window) {
 
 // Initialize app
 console.log('PDF & Image Editor initialized');
-showToast('Welcome to PDF & Image Editor!', 'success', 2000);
+
+// Welcome Modal
+const welcomeModal = document.getElementById('welcomeModal');
+const welcomeClose = document.getElementById('welcomeClose');
+const dontShowWelcome = document.getElementById('dontShowWelcome');
+const helpButton = document.getElementById('helpButton');
+
+// Show welcome modal on first visit
+window.addEventListener('DOMContentLoaded', () => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+    if (!hasSeenWelcome) {
+        setTimeout(() => {
+            welcomeModal.classList.add('active');
+        }, 500);
+    }
+});
+
+// Close welcome modal
+welcomeClose.addEventListener('click', () => {
+    welcomeModal.classList.remove('active');
+    if (dontShowWelcome.checked) {
+        localStorage.setItem('hasSeenWelcome', 'true');
+    }
+    showToast('Welcome to PDF & Image Editor!', 'success', 2000);
+});
+
+// Help button - reopen welcome modal
+helpButton.addEventListener('click', () => {
+    welcomeModal.classList.add('active');
+});

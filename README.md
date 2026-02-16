@@ -6,6 +6,18 @@ A modern, feature-rich web application for editing PDFs and images - all in your
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 ![PWA](https://img.shields.io/badge/PWA-ready-orange.svg)
 
+## ⚡ Quick Start
+
+**Get started in 30 seconds:**
+
+1. **Download or clone this repository**
+2. **Open `index.html` in your web browser** (double-click the file)
+3. **Start editing!** Drag & drop a PDF or image file to begin
+
+**That's it!** No installation, no setup, no account needed. Everything runs in your browser.
+
+> 💡 **New to this app?** Check out the [detailed usage guide](USAGE.md) for step-by-step tutorials.
+
 ## 🌟 Features
 
 ### PDF Editor
